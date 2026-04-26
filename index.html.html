@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أسئلة الغازات — مستوى الأولمبياد الكيميائي</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface2: #f5f6fa;
+    --border: rgba(0,0,0,0.08);
+    --border-hover: rgba(0,0,0,0.18);
+    --accent: #5b4de8;
+    --accent-glow: rgba(91,77,232,0.15);
+    --accent-soft: rgba(91,77,232,0.07);
+    --teal: #0d9e72;
+    --teal-soft: rgba(13,158,114,0.08);
+    --amber: #b87000;
+    --amber-soft: rgba(184,112,0,0.08);
+    --red: #d63031;
+    --red-soft: rgba(214,48,49,0.07);
+    --green: #1e8a3c;
+    --green-soft: rgba(30,138,60,0.07);
+    --text: #1a1d2e;
+    --text2: #4a5068;
+    --text3: #9099b5;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(91,77,232,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(91,77,232,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-top: 1rem;
+  }
+  .page-header .tag {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,247,0.3);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+  .page-header h1 {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: var(--text2);
+  }
+
+  /* Progress */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--teal));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text3);
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text2);
+  }
+  .stat-pill .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+  .stat-pill.correct { border-color: rgba(81,207,102,0.25); color: var(--green); background: var(--green-soft); }
+  .stat-pill.wrong { border-color: rgba(255,107,107,0.25); color: var(--red); background: var(--red-soft); }
+  .stat-pill.pending { border-color: rgba(124,106,247,0.2); }
+  .stat-pill.correct .dot { background: var(--green); }
+  .stat-pill.wrong .dot { background: var(--red); }
+  .stat-pill.pending .dot { background: var(--accent); }
+
+  /* Question card */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.3s ease;
+    transition: border-color 0.3s;
+  }
+  .q-card:hover { border-color: var(--border-hover); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-badges {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .q-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    border: 1px solid rgba(124,106,247,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    flex-shrink: 0;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 100px;
+    border: 1px solid transparent;
+  }
+  .badge-topic { background: var(--teal-soft); color: var(--teal); border-color: rgba(56,217,169,0.2); }
+  .badge-skill { background: var(--amber-soft); color: var(--amber); border-color: rgba(255,184,77,0.2); }
+
+  /* Context box */
+  .context-box {
+    background: var(--surface2);
+    border-right: 3px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--text2);
+  }
+  .context-box .context-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .q-text {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    text-align: right;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .opt::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-soft);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .opt:hover:not(:disabled)::before { opacity: 1; }
+  .opt:hover:not(:disabled) { border-color: rgba(124,106,247,0.4); }
+  .opt:disabled { cursor: not-allowed; }
+
+  .opt.correct {
+    background: var(--green-soft);
+    border-color: rgba(81,207,102,0.4);
+  }
+  .opt.wrong {
+    background: var(--red-soft);
+    border-color: rgba(255,107,107,0.4);
+  }
+  .opt.neutral-correct {
+    background: var(--green-soft);
+    border-color: rgba(81,207,102,0.2);
+    opacity: 0.7;
+  }
+
+  .opt-letter {
+    min-width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    color: var(--text2);
+    flex-shrink: 0;
+    transition: all 0.2s;
+    position: relative; z-index: 1;
+  }
+  .opt.correct .opt-letter { background: var(--green); border-color: var(--green); color: #fff; }
+  .opt.wrong .opt-letter { background: var(--red); border-color: var(--red); color: #fff; }
+  .opt.neutral-correct .opt-letter { background: var(--green); border-color: var(--green); color: #fff; }
+
+  .opt-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    padding-top: 4px;
+    position: relative; z-index: 1;
+  }
+  .opt.correct .opt-text { color: var(--green); }
+  .opt.wrong .opt-text { color: var(--red); }
+  .opt.neutral-correct .opt-text { color: var(--green); opacity: 0.8; }
+
+  /* Feedback panel */
+  .feedback-panel {
+    margin-top: 1.25rem;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+
+  .feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 10px;
+  }
+  .feedback-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .feedback-panel.panel-correct { background: rgba(81,207,102,0.06); border: 1px solid rgba(81,207,102,0.2); }
+  .feedback-panel.panel-wrong { background: rgba(255,107,107,0.06); border: 1px solid rgba(255,107,107,0.2); }
+  .feedback-panel.panel-correct .feedback-icon { background: var(--green-soft); color: var(--green); }
+  .feedback-panel.panel-wrong .feedback-icon { background: var(--red-soft); color: var(--red); }
+  .feedback-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .feedback-panel.panel-correct .feedback-title { color: var(--green); }
+  .feedback-panel.panel-wrong .feedback-title { color: var(--red); }
+
+  .feedback-body { padding: 0 16px 16px; }
+
+  /* Solution steps */
+  .solution-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .step {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .step-num {
+    min-width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    color: var(--text3);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-text {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--text2);
+  }
+  .step-text strong { color: var(--text); font-weight: 600; }
+  .step-text .formula {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    color: #7c3f00;
+    margin: 2px 0;
+    direction: ltr;
+  }
+
+  .answer-highlight {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border-right: 3px solid var(--green);
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .answer-highlight strong { color: var(--green); }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 0.5rem;
+  }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--surface2); border-color: var(--border-hover); }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .nav-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .nav-btn.primary:hover:not(:disabled) { background: #6b5ce7; }
+
+  .nav-center { font-size: 13px; color: var(--text3); }
+
+  /* Score screen */
+  .score-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    animation: fadeUp 0.5s ease;
+  }
+  .score-screen.show { display: flex; }
+
+  .score-ring {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    border: 3px solid var(--accent);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 40px var(--accent-glow);
+  }
+  .score-num { font-size: 42px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .score-denom { font-size: 14px; color: var(--text2); margin-top: 2px; }
+
+  .score-grade {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+  .score-msg {
+    font-size: 15px;
+    color: var(--text2);
+    max-width: 440px;
+    line-height: 1.65;
+    margin-bottom: 2rem;
+  }
+
+  .score-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 2rem;
+  }
+  .breakdown-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    text-align: center;
+  }
+  .breakdown-val { font-size: 26px; font-weight: 600; }
+  .breakdown-label { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .breakdown-card.c { border-color: rgba(81,207,102,0.25); }
+  .breakdown-card.c .breakdown-val { color: var(--green); }
+  .breakdown-card.w { border-color: rgba(255,107,107,0.25); }
+  .breakdown-card.w .breakdown-val { color: var(--red); }
+  .breakdown-card.p { border-color: rgba(124,106,247,0.25); }
+  .breakdown-card.p .breakdown-val { color: var(--accent); }
+
+  .q-dots {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2rem;
+    max-width: 400px;
+  }
+  .q-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .q-dot.c { background: var(--green-soft); border-color: rgba(81,207,102,0.3); color: var(--green); }
+  .q-dot.w { background: var(--red-soft); border-color: rgba(255,107,107,0.3); color: var(--red); }
+
+  .restart-btn {
+    padding: 12px 36px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+  .restart-btn:hover { background: #6b5ce7; transform: translateY(-1px); }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+  @media (max-width: 600px) {
+    .page-wrap { padding: 1.25rem 1rem 3rem; }
+    .q-card { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="tag">NSMO Chemistry</div>
+    <h1>الغازات — مستوى الأولمبياد</h1>
+    <p>١٠ أسئلة تحليلية مع تغذية راجعة وشرح تفصيلي لكل إجابة</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:10%"></div></div>
+    <span class="progress-label" id="prog-label">1 / 10</span>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-pill pending"><span class="dot"></span><span id="stat-remaining">10 متبقية</span></div>
+    <div class="stat-pill correct" id="stat-correct-pill" style="display:none"><span class="dot"></span><span id="stat-correct">0 صحيح</span></div>
+    <div class="stat-pill wrong" id="stat-wrong-pill" style="display:none"><span class="dot"></span><span id="stat-wrong">0 خطأ</span></div>
+  </div>
+
+  <div id="quiz-area"></div>
+
+  <div class="nav" id="nav-bar">
+    <button class="nav-btn" id="prev-btn" onclick="go(-1)" disabled>→ السابق</button>
+    <span class="nav-center" id="nav-label">السؤال 1 من 10</span>
+    <button class="nav-btn" id="next-btn" onclick="go(1)" disabled>التالي ←</button>
+  </div>
+
+  <div class="score-screen" id="score-screen">
+    <div class="score-ring">
+      <div class="score-num" id="sc-num">0</div>
+      <div class="score-denom">من 10</div>
+    </div>
+    <div class="score-grade" id="sc-grade"></div>
+    <div class="score-msg" id="sc-msg"></div>
+    <div class="score-breakdown">
+      <div class="breakdown-card c"><div class="breakdown-val" id="sc-correct">0</div><div class="breakdown-label">إجابات صحيحة</div></div>
+      <div class="breakdown-card w"><div class="breakdown-val" id="sc-wrong">0</div><div class="breakdown-label">إجابات خاطئة</div></div>
+      <div class="breakdown-card p"><div class="breakdown-val" id="sc-pct">0%</div><div class="breakdown-label">نسبة الإتقان</div></div>
+    </div>
+    <div class="q-dots" id="sc-dots"></div>
+    <button class="restart-btn" onclick="restart()">إعادة المحاولة من البداية</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    topic: "قانون جراهام",
+    skill: "تحليل كمي",
+    context: "في مختبر الكيمياء، وضع الطالب عمر عينتين من غازَين مجهولَي الهوية في جهاز قياس التدفق عند درجة حرارة ثابتة 25°م. لاحظ أن الغاز الأول يتدفق بمعدل 3 مل/ث، في حين يتدفق الغاز الثاني بمعدل 12 مل/ث.",
+    q: "إذا علمت أن أحد هذين الغازين هو ثاني أكسيد الكبريت SO₂ (الكتلة المولية 64 جم/مول)، فما الكتلة المولية للغاز الآخر؟",
+    opts: ["4 جم/مول", "8 جم/مول", "16 جم/مول", "256 جم/مول"],
+    ans: 0,
+    feedback_correct: "ممتاز! تطبيق صحيح تام لقانون جراهام.",
+    feedback_wrong: "تذكّر أن نسبة المعدلين تُعطينا الجذر التربيعي لنسبة الكتل المولية المعكوسة.",
+    steps: [
+      { text: "اكتب صيغة قانون جراهام: <span class='formula'>(Rate A / Rate B) = √(M_B / M_A)</span>" },
+      { text: "عيّن القيم: معدل الغاز السريع = 12، معدل الغاز البطيء (SO₂) = 3، كتلة SO₂ = 64 جم/مول." },
+      { text: "احسب النسبة: <span class='formula'>12 / 3 = 4</span>" },
+      { text: "طبّق القانون: <span class='formula'>4 = √(64 / M_unknown)</span>" },
+      { text: "ربّع الطرفين: <span class='formula'>16 = 64 / M</span>، إذن <span class='formula'>M = 64 / 16 = 4 جم/مول</span>" },
+    ],
+    answer_note: "الغاز المجهول كتلته المولية 4 جم/مول وهو غاز الهيليوم He، وهو منطقي لأن الهيليوم الأخف يتدفق أسرع بكثير من SO₂ الأثقل."
+  },
+  {
+    topic: "نظرية الحركة الجزيئية",
+    skill: "استنباط مفاهيمي",
+    context: "درست الطالبة ليلى تجربة تصادم جسيمات الغاز. وجدت أن عينتين من غازَي النيتروجين N₂ (28 جم/مول) والهيدروجين H₂ (2 جم/مول) عند درجة حرارة 300 كلفن لهما متوسط طاقة حركية متماثل.",
+    q: "ما الاستنتاج الصحيح الذي يمكن استخلاصه من هذه الملاحظة؟",
+    opts: [
+      "جزيئات N₂ وH₂ تتحرك بالسرعة المتجهة نفسها",
+      "جزيئات H₂ الأخف تتحرك بسرعة متجهة متوسطة أعلى بكثير من جزيئات N₂",
+      "درجة الحرارة لا تؤثر في متوسط الطاقة الحركية",
+      "جزيئات N₂ الأثقل لها طاقة حركية فردية أعلى لأن كتلتها أكبر"
+    ],
+    ans: 1,
+    feedback_correct: "تحليل ممتاز! استوعبت العلاقة بين الكتلة والسرعة عند ثبات الطاقة الحركية.",
+    feedback_wrong: "تذكّر: KE = ½mv². إذا كان KE متساوياً لكلا الغازين، فإن الغاز الأخف يجب أن يمتلك سرعة أعلى.",
+    steps: [
+      { text: "معادلة الطاقة الحركية: <span class='formula'>KE = ½mv²</span>" },
+      { text: "بما أن درجة الحرارة متساوية، فإن متوسط KE متساوٍ للغازَين." },
+      { text: "لكن كتلة H₂ = 2 جم/مول، وكتلة N₂ = 28 جم/مول؛ أي أن N₂ أثقل بـ 14 مرة." },
+      { text: "لتحقيق التساوي في KE: <span class='formula'>½(2)v²_H₂ = ½(28)v²_N₂</span>" },
+      { text: "بحل المعادلة: <span class='formula'>v_H₂ / v_N₂ = √(28/2) = √14 ≈ 3.74</span>" },
+    ],
+    answer_note: "جزيئات H₂ أسرع بحوالي 3.74 مرة من N₂ عند نفس درجة الحرارة. هذا هو جوهر فهم العلاقة بين الكتلة والسرعة في نظرية الحركة الجزيئية."
+  },
+  {
+    topic: "الغاز الحقيقي vs المثالي",
+    skill: "تحليل الظروف",
+    context: "في مصنع للغازات الصناعية، يُخزَّن غاز البروبان C₃H₈ في أسطوانات فولاذية تحت ضغط مرتفع جداً. أبلغ المشغّل المهندسةَ سارة بأن حسابات قانون الغاز المثالي تعطي نتائج خاطئة لا تتطابق مع القياسات الفعلية.",
+    q: "ما السبب الأكثر احتمالاً لانحراف البروبان عن السلوك المثالي في هذه الظروف؟",
+    opts: [
+      "لأن درجة حرارة المصنع مرتفعة جداً مما يُبطل القانون",
+      "لأن الضغط المرتفع يُجبر الجزيئات على التقارب، فيصبح حجمها غير قابل للإهمال وتظهر قوى التجاذب",
+      "لأن البروبان غاز قطبي يحمل شحنات كهربائية",
+      "لأن قانون الغاز المثالي لا ينطبق إلا على الغازات ثنائية الذرة فقط"
+    ],
+    ans: 1,
+    feedback_correct: "صحيح تماماً! فهمت متى ينهار نموذج الغاز المثالي.",
+    feedback_wrong: "الانحراف عن السلوك المثالي يحدث بسببَين رئيسيَّين: ارتفاع الضغط أو انخفاض درجة الحرارة.",
+    steps: [
+      { text: "الغاز المثالي يفترض: (1) حجم الجسيمات ≈ صفر، (2) لا توجد قوى تجاذب بين الجسيمات." },
+      { text: "عند الضغط المرتفع: تتقارب الجزيئات من بعضها بشكل كبير." },
+      { text: "نتيجة التقارب (أ): الحجم الذي تشغله الجزيئات لا يمكن إهماله بعد الآن → خطأ في الافتراض الأول." },
+      { text: "نتيجة التقارب (ب): تصبح قوى التجاذب بين الجزيئات فعّالة → خطأ في الافتراض الثاني." },
+      { text: "البروبان جزيء عضوي كبير نسبياً، لذا يظهر انحرافه بوضوح عند الضغط العالي." },
+    ],
+    answer_note: "البروبان يتحول إلى سائل تحت ضغط كافٍ (هذا هو مبدأ عمل أسطوانات الغاز المنزلية). الغاز المثالي نموذج نظري؛ معظم الغازات الحقيقية تنحرف عنه عند الضغط العالي ودرجة الحرارة المنخفضة."
+  },
+  {
+    topic: "البارومتر والضغط",
+    skill: "تطبيق رياضي",
+    context: "في تجربة باروميترية، قاس الطالب خالد ارتفاع عمود الزئبق في بارومتر معايَر فوجده 720 ملم. كثافة الزئبق = 13600 كجم/م³، كثافة الماء = 1000 كجم/م³.",
+    q: "لو أُريد استبدال الزئبق بالماء في هذا البارومتر، ما الارتفاع التقريبي لعمود الماء المعادل لهذا الضغط؟",
+    opts: ["0.98 متر", "9.79 متر", "52.9 متر", "97.9 متر"],
+    ans: 1,
+    feedback_correct: "ممتاز! حسبت الارتفاع بشكل صحيح باستخدام نسبة الكثافتين.",
+    feedback_wrong: "ضغط السائل = ρgh. لمساواة الضغط بسائلَين مختلفَين: ρ₁gh₁ = ρ₂gh₂، إذن h₂ = h₁ × (ρ₁/ρ₂).",
+    steps: [
+      { text: "مبدأ الضغط الهيدروستاتيكي: <span class='formula'>P = ρ × g × h</span>" },
+      { text: "لتساوي الضغطَين: <span class='formula'>ρ_Hg × g × h_Hg = ρ_H₂O × g × h_H₂O</span>" },
+      { text: "يُختصر g: <span class='formula'>h_H₂O = h_Hg × (ρ_Hg / ρ_H₂O)</span>" },
+      { text: "تعويض الأرقام: <span class='formula'>h = 0.720 م × (13600 / 1000)</span>" },
+      { text: "الحساب: <span class='formula'>h = 0.720 × 13.6 = 9.79 متر</span>" },
+    ],
+    answer_note: "هذا يفسر بدقة لماذا استخدم تورّيشيلي الزئبق لا الماء في بارومتره (1643م): الماء يتطلب أنبوبة بطول ~10 أمتار، وهو عملياً غير مجدٍ، بينما الزئبق يكفي معه 760 ملم فقط."
+  },
+  {
+    topic: "المانومتر وقراءة الضغط",
+    skill: "تحليل تجريبي",
+    context: "وصل الطالب محمد دورقاً يحتوي على غاز مجهول بمانومتر مفتوح الطرف. لاحظ أن مستوى الزئبق في الذراع المتصلة بالدورق أعلى من مستوى الذراع المفتوحة للغلاف الجوي بمقدار 40 ملم. الضغط الجوي = 760 ملم زئبق.",
+    q: "ما ضغط الغاز في الدورق؟",
+    opts: ["800 ملم زئبق", "760 ملم زئبق", "720 ملم زئبق", "40 ملم زئبق"],
+    ans: 2,
+    feedback_correct: "قراءة صحيحة لمانومتر مفتوح الطرف!",
+    feedback_wrong: "تذكّر: إذا كان مستوى الزئبق في جانب الغاز أعلى، فهذا يعني أن ضغط الغاز أقل من الضغط الجوي.",
+    steps: [
+      { text: "في المانومتر المفتوح: يُوازن ارتفاع الزئبق الفرقَ بين ضغط الغاز والضغط الجوي." },
+      { text: "مستوى الزئبق في جانب الغاز أعلى ← الغاز يدفع الزئبق للأعلى من جهته ← ضغطه أقل من الجوي." },
+      { text: "المعادلة المناسبة (الحالة c): <span class='formula'>P_gas = P_atm - P_Hg</span>" },
+      { text: "تعويض: <span class='formula'>P_gas = 760 - 40 = 720 ملم زئبق</span>" },
+    ],
+    answer_note: "تذكّر المنطق: الزئبق يرتفع نحو منطقة الضغط الأقل. إذا ارتفع نحو الغاز، فالغاز ضغطه أقل من الجوي. وإذا ارتفع نحو الهواء الجوي، فضغط الغاز أعلى من الجوي."
+  },
+  {
+    topic: "الانتشار التفاضلي",
+    skill: "تطبيق هندسي-حسابي",
+    context: "في تجربة كلاسيكية، وُضع غازا الأمونيا NH₃ (م.م = 17 جم/مول) وكلوريد الهيدروجين HCl (م.م = 36.5 جم/مول) في طرفَي أنبوبة زجاجية طولها 100 سم في آنٍ واحد. سيتقابل الغازان ويتفاعلان مكوِّنَين حلقة بيضاء من NH₄Cl.",
+    q: "على أي مسافة تقريبية من طرف الأمونيا ستتكوّن الحلقة البيضاء؟",
+    opts: ["50 سم (المنتصف)", "41 سم", "60 سم", "75 سم"],
+    ans: 2,
+    feedback_correct: "حساب دقيق! استخدمت قانون جراهام في سياق تطبيقي متكامل.",
+    feedback_wrong: "الأمونيا الأخف تنتشر أسرع، لذا تقطع مسافة أطول قبل الالتقاء.",
+    steps: [
+      { text: "نسبة معدلات الانتشار بقانون جراهام: <span class='formula'>Rate(NH₃) / Rate(HCl) = √(M_HCl / M_NH₃)</span>" },
+      { text: "حساب النسبة: <span class='formula'>√(36.5 / 17) = √2.147 ≈ 1.465</span>" },
+      { text: "الأمونيا أسرع بمعامل 1.465. إجمالي الأجزاء = 1.465 + 1 = 2.465" },
+      { text: "مسافة الأمونيا = <span class='formula'>100 × (1.465 / 2.465) ≈ 59.4 سم ≈ 60 سم</span>" },
+      { text: "مسافة HCl = 100 - 60 = 40 سم من طرفه، أي الحلقة تتشكل قريبة من طرف HCl." },
+    ],
+    answer_note: "هذه التجربة البسيطة تبرهن على قانون جراهام بصرياً. الحلقة لا تتشكل في المنتصف لأن الغازَين يختلفان في سرعة الانتشار. يمكن استخدام موقع الحلقة لحساب النسبة بين الكتل المولية لغازَين مجهولَين."
+  },
+  {
+    topic: "خواص الغازات",
+    skill: "تحليل متعدد المتغيرات",
+    context: "يعمل الطالب يوسف في مختبر الغازات. يضغط كمية ثابتة من الغاز المحاصر في أسطوانة بمكبس متحرك إلى نصف حجمه الأصلي، مع إبقاء درجة الحرارة ثابتة تماماً.",
+    q: "ماذا يتوقع يوسف أن يحدث للكثافة والضغط معاً؟",
+    opts: [
+      "الكثافة تتضاعف والضغط يتضاعف",
+      "الكثافة تتضاعف والضغط يبقى ثابتاً",
+      "الكثافة تنخفض للنصف والضغط يتضاعف",
+      "كلاهما يبقى ثابتاً لأن الكتلة لم تتغير"
+    ],
+    ans: 0,
+    feedback_correct: "تفكير سليم! ربطت بين الكثافة والضغط وتغير الحجم بشكل صحيح.",
+    feedback_wrong: "الكثافة = كتلة/حجم. إذا ثبتت الكتلة وتناصف الحجم، فما الذي يحدث للكثافة؟",
+    steps: [
+      { text: "<strong>تأثير الضغط المحيطة الكثافة:</strong> الكثافة = كتلة / حجم." },
+      { text: "الكتلة ثابتة، الحجم أصبح V/2، إذن: <span class='formula'>ρ_جديد = m / (V/2) = 2(m/V) = 2ρ</span>" },
+      { text: "الكثافة تتضاعف. ✓" },
+      { text: "<strong>تأثير على الضغط:</strong> قانون بويل (T ثابتة): <span class='formula'>P₁V₁ = P₂V₂</span>" },
+      { text: "إذن: <span class='formula'>P₂ = P₁ × (V₁/V₂) = P₁ × 2</span> ← الضغط يتضاعف. ✓" },
+    ],
+    answer_note: "هذا يُجسّد خاصيتَي الكثافة المنخفضة والقابلية للانضغاط معاً. عند ضغط الغاز، يرتفع الضغط لأن الجزيئات تصطدم بجدران أصغر مساحةً (حجم أصغر) بنفس المعدل، مما يزيد القوة لكل وحدة مساحة."
+  },
+  {
+    topic: "التصادمات المرنة والطاقة",
+    skill: "نقد وتقييم نظري",
+    context: "تجادل طالبان في الفصل: قال الأول إن جزيء غاز يفقد جزءاً من طاقته الحركية كلما اصطدم بجدار الوعاء، لذا ستنخفض درجة حرارة الغاز تدريجياً مع مرور الوقت. وردّت الثانية بأن هذا مخالف لنظرية الحركة الجزيئية.",
+    q: "من المُصيب في الجدال، وما المفهوم النظري الداعم؟",
+    opts: [
+      "الأول مُصيب؛ كل تصادم يحوّل جزءاً من الطاقة الحركية إلى حرارة في الجدار",
+      "الثانية مُصيبة؛ التصادمات في الغاز المثالي مرنة، أي الطاقة الحركية الكلية تُحفظ ولا تُفقد",
+      "كلاهما مخطئ؛ الطاقة تتحول بالكامل إلى طاقة وضع",
+      "الأول مُصيب فقط في الغازات الحقيقية، والثانية مُصيبة فقط في المثالية"
+    ],
+    ans: 1,
+    feedback_correct: "فهم عميق لافتراضات نظرية الحركة الجزيئية!",
+    feedback_wrong: "افتراض التصادمات المرنة هو أحد أعمدة النظرية الحركية الجزيئية. راجع تعريف التصادم المرن.",
+    steps: [
+      { text: "تعريف التصادم المرن: تصادم لا تُفقد فيه الطاقة الحركية، بل تنتقل بين الجسيمات المتصادمة." },
+      { text: "الافتراض الثاني لنظرية الحركة الجزيئية يُنص صراحةً على أن تصادمات الغاز المثالي مرنة." },
+      { text: "في التصادم المرن بين جسيمين: <span class='formula'>ΣKE_قبل = ΣKE_بعد</span>" },
+      { text: "إذن مجموع الطاقة الحركية للنظام ثابت ← لا تنخفض درجة الحرارة." },
+      { text: "ما قد يحدث: جسيم واحد يفقد طاقة ويكتسبها آخر، لكن المجموع محفوظ." },
+    ],
+    answer_note: "في الغازات الحقيقية (لا المثالية) توجد تصادمات غير مرنة جزئياً، لكن تأثيرها على درجة الحرارة الكلية ضئيل جداً في الظروف العادية. هذا الافتراض هو ما يجعل نموذج الغاز المثالي قابلاً للتطبيق الرياضي المُبسَّط."
+  },
+  {
+    topic: "وحدات الضغط والتحويل",
+    skill: "تطبيق رياضي متعدد الخطوات",
+    context: "قرأ طالب الكيمياء فيصل في تقرير علمي أن ضغط غاز داخل مفاعل بلغ 2.5 ضغط جوي. يريد تحويل هذه القيمة لتقديمها في تقريره بثلاث وحدات مختلفة لتناسب جمهوراً دولياً.",
+    q: "ما القيم الصحيحة بالترتيب: كيلوباسكال، ملم زئبق، بار؟",
+    opts: [
+      "253.3 kPa | 1900 mmHg | 2.53 bar",
+      "101.3 kPa | 760 mmHg | 1.01 bar",
+      "25.3 kPa | 190 mmHg | 0.25 bar",
+      "2531 kPa | 19000 mmHg | 25.3 bar"
+    ],
+    ans: 0,
+    feedback_correct: "تحويل دقيق لوحدات الضغط!",
+    feedback_wrong: "استخدم علاقة التحويل: 1 atm = 101.325 kPa = 760 mmHg = 1.01325 bar، ثم اضرب كلاً منها في 2.5.",
+    steps: [
+      { text: "علاقة التحويل الأساسية: <span class='formula'>1 atm = 101.325 kPa = 760 mmHg = 1.01325 bar</span>" },
+      { text: "التحويل إلى كيلوباسكال: <span class='formula'>2.5 × 101.325 = 253.3 kPa</span>" },
+      { text: "التحويل إلى ملم زئبق: <span class='formula'>2.5 × 760 = 1900 mmHg</span>" },
+      { text: "التحويل إلى بار: <span class='formula'>2.5 × 1.01325 ≈ 2.53 bar</span>" },
+    ],
+    answer_note: "احفظ هذه العلاقة جيداً: 1 atm = 76 cmHg = 760 mmHg = 760 torr = 1.01325 bar = 101325 Pa = 101.325 kPa. وحدة الباسكال مشتقة من نيوتن/م²، وهي الوحدة الدولية الرسمية (SI)."
+  },
+  {
+    topic: "تكامل مفاهيم الغاز الحقيقي",
+    skill: "استنباط متكامل — تطبيق على الحياة",
+    context: "في يوم شاتٍ بارد جداً، لاحظت المهندسة نورة أن أسطوانة غاز البروبان المحمولة توقفت عن إخراج الغاز رغم أن الأسطوانة تحتوي على مادة بداخلها. عند فحص الأسطوانة وجدت أن محتواها لا يزال ثقيلاً.",
+    q: "ما التفسير الكيميائي الصحيح لهذه الظاهرة بالاستناد إلى مفاهيم الغاز الحقيقي؟",
+    opts: [
+      "تجمّد البروبان إلى مادة صلبة عند درجات الحرارة المنخفضة جداً",
+      "انخفاض درجة الحرارة أضعف الطاقة الحركية للجزيئات، فتقاربت بفعل قوى التجاذب وتكثّف البروبان إلى سائل — لذا لا يخرج غاز",
+      "البروبان غاز مثالي فلا تؤثر درجة الحرارة في حالته الفيزيائية",
+      "الضغط الجوي المرتفع في الطقس البارد منع خروج الغاز"
+    ],
+    ans: 1,
+    feedback_correct: "تحليل ممتاز يربط النظرية بالواقع التطبيقي!",
+    feedback_wrong: "تذكّر: البروبان غاز حقيقي ينحرف عن السلوك المثالي عند درجات الحرارة المنخفضة. ما الذي يحدث لقوى التجاذب بين الجزيئات عند انخفاض طاقتها الحركية؟",
+    steps: [
+      { text: "البروبان C₃H₈ غاز حقيقي تؤثر فيه درجة الحرارة بشكل واضح." },
+      { text: "عند انخفاض T: تنخفض الطاقة الحركية للجزيئات (<span class='formula'>KE = ½mv²</span>)." },
+      { text: "مع انخفاض KE: تصبح قوى التجاذب بين الجزيئات أقوى نسبياً من حركتها العشوائية." },
+      { text: "عند درجة حرارة كافية: تتغلب قوى التجاذب على الطاقة الحركية → يتكثّف الغاز إلى سائل." },
+      { text: "السائل لا يخرج من صمام الغاز المُصمَّم لإخراج الغاز، لذا توقف التدفق رغم وجود المادة." },
+    ],
+    answer_note: "هذا هو مبدأ عمل أسطوانات الغاز المنزلية: تحتوي على بروبان سائل تحت ضغط. في الطقس البارد جداً، قد تنخفض درجة الحرارة عن نقطة تبخر البروبان بالضغط الداخلي، فيتوقف الخروج. الحل العملي: تدفئة الأسطوانة أو رجّها لتسريع التبخر."
+  }
+];
+
+let cur = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+const LETTERS = ['أ','ب','ج','د'];
+
+function render() {
+  const q = QUESTIONS[cur];
+  const answered = answers[cur] !== null;
+
+  document.getElementById('prog').style.width = ((cur+1)/QUESTIONS.length*100) + '%';
+  document.getElementById('prog-label').textContent = `${cur+1} / ${QUESTIONS.length}`;
+  document.getElementById('nav-label').textContent = `السؤال ${cur+1} من ${QUESTIONS.length}`;
+  document.getElementById('prev-btn').disabled = cur === 0;
+  const isLast = cur === QUESTIONS.length - 1;
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.disabled = !answered;
+  nextBtn.textContent = (isLast && answered) ? 'عرض النتيجة النهائية ←' : 'التالي ←';
+  nextBtn.className = (isLast && answered) ? 'nav-btn primary' : 'nav-btn';
+
+  updateStats();
+
+  let html = `<div class="q-card">
+    <div class="q-badges">
+      <div class="q-num">${cur+1}</div>
+      <span class="badge badge-topic">${q.topic}</span>
+      <span class="badge badge-skill">${q.skill}</span>
+    </div>`;
+
+  if (q.context) {
+    html += `<div class="context-box">
+      <div class="context-label">سياق المسألة</div>
+      ${q.context}
+    </div>`;
+  }
+
+  html += `<div class="q-text">${q.q}</div>
+    <div class="options">`;
+
+  q.opts.forEach((opt, i) => {
+    let cls = 'opt';
+    if (answered) {
+      if (i === q.ans) cls += ' neutral-correct';
+      if (i === answers[cur] && i === q.ans) cls = 'opt correct';
+      if (i === answers[cur] && i !== q.ans) cls += ' wrong';
+    }
+    html += `<button class="${cls}" onclick="pick(${i})" ${answered ? 'disabled' : ''}>
+      <div class="opt-letter">${LETTERS[i]}</div>
+      <div class="opt-text">${opt}</div>
+    </button>`;
+  });
+
+  html += `</div>`;
+
+  if (answered) {
+    const isCorrect = answers[cur] === q.ans;
+    html += `<div class="feedback-panel show ${isCorrect ? 'panel-correct' : 'panel-wrong'}">
+      <div class="feedback-header">
+        <div class="feedback-icon">${isCorrect ? '✓' : '✗'}</div>
+        <div class="feedback-title">${isCorrect ? q.feedback_correct : q.feedback_wrong}</div>
+      </div>
+      <div class="feedback-body">
+        <div class="divider"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">طريقة الحل خطوة بخطوة</div>
+        <div class="solution-steps">`;
+    q.steps.forEach((s, i) => {
+      html += `<div class="step">
+        <div class="step-num">${i+1}</div>
+        <div class="step-text">${s.text}</div>
+      </div>`;
+    });
+    html += `</div>`;
+    if (q.answer_note) {
+      html += `<div class="answer-highlight"><strong>الإجابة والتحليل: </strong>${q.answer_note}</div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  html += `</div>`;
+  document.getElementById('quiz-area').innerHTML = html;
+}
+
+function pick(i) {
+  if (answers[cur] !== null) return;
+  answers[cur] = i;
+  render();
+}
+
+function go(dir) {
+  if (dir === 1 && cur === QUESTIONS.length - 1 && answers[cur] !== null) {
+    showScore(); return;
+  }
+  cur = Math.max(0, Math.min(QUESTIONS.length - 1, cur + dir));
+  render();
+}
+
+function updateStats() {
+  const answered = answers.filter(a => a !== null).length;
+  const correct = answers.filter((a,i) => a === QUESTIONS[i].ans).length;
+  const wrong = answered - correct;
+  const remaining = QUESTIONS.length - answered;
+
+  document.getElementById('stat-remaining').textContent = `${remaining} متبقية`;
+  if (correct > 0) {
+    document.getElementById('stat-correct-pill').style.display = 'flex';
+    document.getElementById('stat-correct').textContent = `${correct} صحيح`;
+  }
+  if (wrong > 0) {
+    document.getElementById('stat-wrong-pill').style.display = 'flex';
+    document.getElementById('stat-wrong').textContent = `${wrong} خطأ`;
+  }
+}
+
+function showScore() {
+  const score = answers.filter((a,i) => a === QUESTIONS[i].ans).length;
+  const wrong = QUESTIONS.length - score;
+  const pct = Math.round(score / QUESTIONS.length * 100);
+
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('nav-bar').style.display = 'none';
+  document.getElementById('stats-bar').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  document.querySelector('.page-header').style.display = 'none';
+
+  const grades = [
+    [0, 3,  'يحتاج مراجعة شاملة', 'راجع مادة الغازات من البداية مع التركيز على نظرية الحركة الجزيئية وقانون جراهام.'],
+    [4, 5,  'مستوى مقبول', 'أساس جيد! راجع الأسئلة الخاطئة وتدرّب على المسائل الحسابية أكثر.'],
+    [6, 7,  'مستوى جيد', 'أداء جيد. تدرّب على مزيد من المسائل التطبيقية لترسيخ الفهم.'],
+    [8, 9,  'مستوى متميز', 'تقريباً كامل! راجع الخطأ أو الخطأين وستكون جاهزاً للمنافسة.'],
+    [10, 10,'مستوى الأولمبياد', 'إجابات كاملة! أنت مؤهل حقاً للمنافسة في الأولمبياد الكيميائي.']
+  ];
+  const [, , grade, msg] = grades.find(([lo, hi]) => score >= lo && score <= hi);
+
+  document.getElementById('sc-num').textContent = score;
+  document.getElementById('sc-grade').textContent = grade;
+  document.getElementById('sc-msg').textContent = msg;
+  document.getElementById('sc-correct').textContent = score;
+  document.getElementById('sc-wrong').textContent = wrong;
+  document.getElementById('sc-pct').textContent = pct + '%';
+
+  let dots = '';
+  answers.forEach((a, i) => {
+    const c = a === QUESTIONS[i].ans ? 'c' : 'w';
+    dots += `<div class="q-dot ${c}">${i+1}</div>`;
+  });
+  document.getElementById('sc-dots').innerHTML = dots;
+
+  document.getElementById('score-screen').classList.add('show');
+}
+
+function restart() {
+  cur = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  ['quiz-area','nav-bar','stats-bar'].forEach(id => document.getElementById(id).style.display = '');
+  document.querySelector('.progress-wrap').style.display = '';
+  document.querySelector('.page-header').style.display = '';
+  document.getElementById('score-screen').classList.remove('show');
+  document.getElementById('stat-correct-pill').style.display = 'none';
+  document.getElementById('stat-wrong-pill').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
